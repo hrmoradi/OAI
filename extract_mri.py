@@ -45,7 +45,6 @@ def retrieve_and_save_mri(pid, cohort, time, visit_id, mri_barcode, save_dir, fi
                                  date=time, barcode=mri_barcode)
 
     # Preprocessing
-    print("Processing slices...")
     for slice_num in os.listdir(mri_formatted_pth):
         slice_pth = os.path.join(mri_formatted_pth, slice_num)
         img, data, img_before = image_preprocessing(slice_pth)
@@ -60,21 +59,18 @@ def retrieve_and_save_mri(pid, cohort, time, visit_id, mri_barcode, save_dir, fi
 
 
 def main():
-    print("MAIN")
     parser = get_parser()
     args = parser.parse_args()
         
     visit_id = "00"
     
     filtered_patients = filter_by_view(args.enrollees, args.mri, visit_id, args.view)
-    print(len(filtered_patients))
     
     for i, row in filtered_patients.iterrows():
         cohort = "C.2" if row["V00CHRTHLF"]== "1: First half of cohort" else "E.1" if row["V00CHRTHLF"] == "2: Second half of cohort" else np.nan
 
         try: date = row["V" + visit_id + "MRDATE"].strftime("%Y%m%d")
         except:
-            print("Except clause")
             continue
             
         filename = "{pid}_{barcode}_L.hdf5" if "L" in row.V00MEXAMTP else "{pid}_{barcode}_R.hdf5" 
